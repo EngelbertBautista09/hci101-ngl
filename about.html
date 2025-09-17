@@ -1,0 +1,116 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCI 101: About</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/skel.min.js"></script>
+    <script src="assets/js/init.js"></script>
+</head>
+<body>
+    <div id="header-wrapper">
+        <header id="header" class="container">
+            <div id="logo">
+                <h1><a href="index.html">HCI 101</a></h1>
+            </div>
+            <nav id="nav">
+                <ul>
+                    <li><a href="index.html">Home</a></li>
+                    <li><a href="modules.html">Modules</a></li>
+                    <li><a href="contribute.html">Contribute</a></li>
+                    <li class="current"><a href="about.html">About</a></li>
+                    <li><a href="resources.html">Resources</a></li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+
+    <div id="main-wrapper">
+        <div class="container">
+            <div id="content">
+                <article>
+                    <header>
+                        <h2>About HCI 101</h2>
+                    </header>
+                    <section>
+                        <h3>Course Overview</h3>
+                        <p>This website compiles lessons from our Human-Computer Interaction (HCI) 101 course, designed to teach students about designing user-friendly systems. Topics include principles, guidelines, theories, and design processes.</p>
+                    </section>
+                    <section>
+                        <h3>About the Creator</h3>
+                        <p>Created by [Your Name], a student compiling HCI 101 materials for easy access and future expansion. Contact: <a href="mailto:contact@hci101.example">contact@hci101.example</a>.</p>
+                    </section>
+                    <section>
+                        <h3>Credits</h3>
+                        <p>Built using the ZeroFour template by HTML5 UP, licensed under Creative Commons Attribution.</p>
+                    </section>
+                </article>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-wrapper">
+        <footer id="footer" class="container">
+            <div class="row">
+                <section class="col-3 col-6-narrower col-12-mobilep">
+                    <h3>Quick Links</h3>
+                    <ul class="links">
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="modules.html">Modules</a></li>
+                    </ul>
+                </section>
+                <section class="col-3 col-6-narrower col-12-mobilep">
+                    <h3>Get in Touch</h3>
+                    <ul class="links">
+                        <li><a href="mailto:contact@hci101.example">Email Us</a></li>
+                    </ul>
+                </section>
+            </div>
+            <div id="copyright">
+                &copy; HCI 101 Compilation. All rights reserved. Design: <a href="https://html5up.net">HTML5 UP</a>.
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

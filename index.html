@@ -1,0 +1,141 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HCI 101: Human-Computer Interaction Basics</title>
+    <link rel="stylesheet" href="assets/css/main.css">
+    <!-- Include JS files for navbar functionality -->
+    <script src="assets/js/jquery.min.js"></script>
+    <script src="assets/js/skel.min.js"></script>
+    <script src="assets/js/init.js"></script>
+</head>
+<body class="homepage">
+    <div id="header-wrapper">
+        <header id="header" class="container">
+            <div id="logo">
+                <h1><a href="index.html">HCI 101</a></h1>
+            </div>
+            <nav id="nav">
+                <ul>
+                    <li class="current"><a href="index.html">Home</a></li>
+                    <li><a href="modules.html">Modules</a></li>
+                    <li><a href="contribute.html">Contribute</a></li>
+                    <li><a href="about.html">About</a></li>
+                    <li><a href="resources.html">Resources</a></li>
+                </ul>
+            </nav>
+        </header>
+    </div>
+
+    <div id="banner-wrapper">
+        <section id="banner" class="container">
+            <h2>HCI 101: Learn Human-Computer Interaction</h2>
+            <p>Explore our course lessons on designing user-friendly systems, compiled for easy access.</p>
+            <a href="modules.html" class="button big">View Modules</a>
+        </section>
+    </div>
+
+    <div id="main-wrapper">
+        <div class="container">
+            <div class="row">
+                <div class="col-8 col-12-narrower">
+                    <div id="content">
+                        <article>
+                            <header>
+                                <h2>Welcome to HCI 101</h2>
+                                <p>This website compiles lessons from our Human-Computer Interaction course, covering principles, guidelines, theories, and design processes for creating intuitive systems.</p>
+                            </header>
+                            <section>
+                                <h3>Why Study HCI?</h3>
+                                <p>From the mouse to touchscreens, HCI shapes how we interact with technology. Start with our <a href="modules.html">Modules</a> to learn more.</p>
+                            </section>
+                        </article>
+                    </div>
+                </div>
+                <div class="col-4 col-12-narrower">
+                    <div id="sidebar">
+                        <section>
+                            <h3>Recent Updates</h3>
+                            <ul class="style2">
+                                <li>
+                                    <span class="date">September 18, 2025</span>
+                                    <h4>New Module Coming Soon</h4>
+                                    <p>Submit ideas via <a href="contribute.html">Contribute</a> to shape future content.</p>
+                                </li>
+                            </ul>
+                        </section>
+                        <section>
+                            <h3>Spotlight: Usability</h3>
+                            <p>Learn how to design interfaces that are easy, efficient, and safe, as covered in Module 1.</p>
+                            <a href="modules.html#module1" class="button">Read More</a>
+                        </section>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="footer-wrapper">
+        <footer id="footer" class="container">
+            <div class="row">
+                <section class="col-3 col-6-narrower col-12-mobilep">
+                    <h3>Quick Links</h3>
+                    <ul class="links">
+                        <li><a href="modules.html">Modules</a></li>
+                        <li><a href="contribute.html">Contribute</a></li>
+                    </ul>
+                </section>
+                <section class="col-3 col-6-narrower col-12-mobilep">
+                    <h3>Get in Touch</h3>
+                    <ul class="links">
+                        <li><a href="mailto:contact@hci101.example">Email Us</a></li>
+                    </ul>
+                </section>
+            </div>
+            <div id="copyright">
+                &copy; HCI 101 Compilation. All rights reserved. Design: <a href="https://html5up.net">HTML5 UP</a>.
+            </div>
+        </footer>
+    </div>
+</body>
+</html>
